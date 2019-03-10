@@ -26,6 +26,9 @@ DESCRIPTION
     -d photo_id description
         Set photo photo_id's description to description
 
+    --domain domain
+        Set domain to access
+
 Functions:
 - login(cookie=true)
 - create_album()
