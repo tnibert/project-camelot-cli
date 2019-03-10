@@ -1,0 +1,35 @@
+Creating the interface before any code is written...
+In the form of a man page
+
+SYNOPSIS
+    ./picpicpanda [OPTION] ...
+
+    Will prompt for username and password when run.
+    Password will be entered in the Unix way of not showing.
+    Will figure out a way to save credentials between runs for scripting (store cookie?).
+    All accesses must account for permission denied and error cases.
+    Need to define mutual exclusivity of options.  Perhaps iterate over them in order.
+
+DESCRIPTION
+    -c album_name
+        Create an album named album_name, will print album's id on exit
+
+    -u album_id file
+        Upload file to album album_id
+
+    -a user_id
+        List album information for user user_id
+
+    -p album_id
+        List photo information for album album_id
+
+    -d photo_id description
+        Set photo photo_id's description to description
+
+Functions:
+- login(cookie=true)
+- create_album()
+- upload_photo()
+- list_albums()
+- list_photos()
+- update_photo_desc()
