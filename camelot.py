@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 import requests
+import argparse
+import sys
 
 DOMAIN='https://www.picpicpanda.com'
 
@@ -9,23 +11,49 @@ URLS = {
 }
 
 def login(save_cookie=True):
-    pass
+    print("Login")
 
 def create_album(name):
-    pass
+    print("create_album")
 
 def upload_photo(fname):
-    pass
+    print("upload_photo")
 
 def update_photo_desc(description):
-    pass
+    print("update_photo_desc")
 
 def list_albums(user_id):
-    pass
+    print("list_albums")
 
 def list_photos(album_id):
-    pass
+    print("list_photos")
 
 if __name__ == '__main__':
-    pass
-    # process command line args
+
+    # munge command line args for argparse
+    # hmm... this is a bit ugly
+    opts = sys.argv[2:]
+    sys.argv = sys.argv[:2]
+
+    # command options
+    FUNCTION_MAP = {
+                    'login' : login,
+                    'create_album' : create_album,
+                    'upload_photo': upload_photo,
+                    'photo_desc': update_photo_desc,
+                    'list_albums': list_albums,
+                    'list_photos': list_photos
+    }
+
+    # process command line args with argparse
+    parser = argparse.ArgumentParser(description='Command line utility to interface with PicPicPanda')
+
+    parser.add_argument('command', choices=FUNCTION_MAP.keys())
+
+    args = parser.parse_args()
+
+    print(args)
+
+    # execute the appropriate command
+    func = FUNCTION_MAP[args.command]
+    func(*opts)
