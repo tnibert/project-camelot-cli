@@ -2,8 +2,9 @@
 import requests
 import argparse
 import sys
+import getpass
 
-DOMAIN='https://www.picpicpanda.com'
+HOST='https://picpicpanda.com'
 
 URLS = {
     'upload_photo': '/api/upload/{}',
@@ -11,7 +12,37 @@ URLS = {
 }
 
 def login(save_cookie=True):
+    """
+    Login, prompting user for login (if no valid cookie - to implement)
+    return: session object
+    """
+    # todo: implement cookie saving
     print("Login")
+
+    # prompt for input
+    user = input("Username [%s]: " % getpass.getuser())
+    if not user:
+        user = getpass.getuser()
+    try:
+        password = getpass.getpass()
+    except Exception as error:
+        print('ERROR', error)
+        return
+
+    s = requests.session()
+    p = s.get(HOST)
+    csrftoken = s.cookies['csrftoken']
+
+    payload = {
+        'csrfmiddlewaretoken': csrftoken,
+        'username': user,
+        'password': password
+    }
+
+    print(csrftoken)
+    p = s.post(HOST, data=payload, headers=dict(Referer=HOST))
+    print(p)
+    return s
 
 def create_album(name):
     print("create_album")
