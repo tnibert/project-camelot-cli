@@ -4,12 +4,17 @@ import argparse
 import sys, os
 import getpass
 import pickle
+import json
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 HOST='https://picpicpanda.com'
 
 URLS = {
     'upload_photo': '/api/upload/{}',
-    'update_photo_desc': '/api/update/photo/desc/{}'
+    'update_photo_desc': '/api/update/photo/desc/{}',
+    'list_albums': '/api/{}/getalbums'
 }
 
 COOKIE_FILE='.PPP_COOKIE'
@@ -81,6 +86,9 @@ def login(save_my_cookie=True):
 
 def create_album(name):
     print("create_album")
+    s = login()
+
+
 
 
 def upload_photo(fname):
@@ -92,7 +100,18 @@ def update_photo_desc(description):
 
 
 def list_albums(user_id):
+    """
+    List albums for the given user
+    :param user_id: primary key of user
+    :return: dict of the json returned
+    """
     print("list_albums")
+    s = login()
+
+    response = s.get(HOST + URLS['list_albums'].format(user_id))
+    data = json.loads(response.content)
+    pp.pprint(data)
+    return data
 
 
 def list_photos(album_id):
@@ -122,8 +141,6 @@ if __name__ == '__main__':
     parser.add_argument('command', choices=FUNCTION_MAP.keys())
 
     args = parser.parse_args()
-
-    print(args)
 
     # execute the appropriate command
     func = FUNCTION_MAP[args.command]
