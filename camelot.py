@@ -7,14 +7,16 @@ import pickle
 import json
 import pprint
 
-pp = pprint.PrettyPrinter(indent=4)
+pp = pprint.PrettyPrinter(indent=2)
 
-HOST='https://picpicpanda.com'
+#HOST='https://picpicpanda.com'
+HOST='http://127.0.0.1:8000'
 
 URLS = {
     'upload_photo': '/api/upload/{}',
     'update_photo_desc': '/api/update/photo/desc/{}',
-    'list_albums': '/api/{}/getalbums'
+    'list_albums': '/api/{}/getalbums',
+    'list_photos': '/api/album/{}/getphotos'
 }
 
 COOKIE_FILE='.PPP_COOKIE'
@@ -89,8 +91,6 @@ def create_album(name):
     s = login()
 
 
-
-
 def upload_photo(fname):
     print("upload_photo")
 
@@ -116,6 +116,12 @@ def list_albums(user_id):
 
 def list_photos(album_id):
     print("list_photos")
+    s = login()
+
+    response = s.get(HOST + URLS['list_photos'].format(album_id))
+    data = json.loads(response.content)
+    pp.pprint(data)
+    return data
 
 
 if __name__ == '__main__':
