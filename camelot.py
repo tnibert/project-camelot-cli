@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
 import requests
 import argparse
-import sys
+import sys, os
 import getpass
+import pickle
 
 HOST='https://picpicpanda.com'
 
@@ -11,53 +12,92 @@ URLS = {
     'update_photo_desc': '/api/update/photo/desc/{}'
 }
 
-def login(save_cookie=True):
+COOKIE_FILE='.PPP_COOKIE'
+
+
+def login(save_my_cookie=True):
     """
-    Login, prompting user for login (if no valid cookie - to implement)
+    Login, prompting user for login if no valid cookie
     return: session object
     """
-    # todo: implement cookie saving
+    # define some local functions to this function
+    def save_cookie(sess, fi=COOKIE_FILE):
+        with open(fi, 'wb') as f:
+            pickle.dump(sess.cookies, f)
+
+    def load_cookie(fi=COOKIE_FILE):
+        # todo: not absolutely 100% certain this is keeping us logged in, keep an eye on other requests
+        session = requests.session()  # or an existing session
+
+        with open(fi, 'rb') as f:
+            session.cookies.update(pickle.load(f))
+
+        return session
+
+    def check_cookie_expiry(r):
+        # this function has not been observed to work, but maybe we just don't have expiry
+        #expires = next(x for x in r.cookies if x.name == 'WebSecu').expires
+        expires = None
+        for cookie in r.cookies:
+            if cookie.name == 'WebSecu':
+                expires = cookie.expires
+        print(expires)
+
     print("Login")
 
-    # prompt for input
-    user = input("Username [%s]: " % getpass.getuser())
-    if not user:
-        user = getpass.getuser()
     try:
-        password = getpass.getpass()
-    except Exception as error:
-        print('ERROR', error)
-        return
+        s = load_cookie()
+    except:
+        # prompt for input
+        user = input("Username [%s]: " % getpass.getuser())
+        if not user:
+            user = getpass.getuser()
+        try:
+            password = getpass.getpass()
+        except Exception as error:
+            print('ERROR', error)
+            return
 
-    s = requests.session()
-    p = s.get(HOST)
-    csrftoken = s.cookies['csrftoken']
+        s = requests.session()
+        p = s.get(HOST)
+        csrftoken = s.cookies['csrftoken']
 
-    payload = {
-        'csrfmiddlewaretoken': csrftoken,
-        'username': user,
-        'password': password
-    }
+        payload = {
+            'csrfmiddlewaretoken': csrftoken,
+            'username': user,
+            'password': password
+        }
 
-    print(csrftoken)
-    p = s.post(HOST, data=payload, headers=dict(Referer=HOST))
-    print(p)
+        print(csrftoken)
+        p = s.post(HOST, data=payload, headers=dict(Referer=HOST))
+        print(p)
+
+        # cookie persistence
+        if save_my_cookie and not os.path.isfile(COOKIE_FILE):
+            save_cookie(s)
+
     return s
+
 
 def create_album(name):
     print("create_album")
 
+
 def upload_photo(fname):
     print("upload_photo")
+
 
 def update_photo_desc(description):
     print("update_photo_desc")
 
+
 def list_albums(user_id):
     print("list_albums")
 
+
 def list_photos(album_id):
     print("list_photos")
+
 
 if __name__ == '__main__':
 
